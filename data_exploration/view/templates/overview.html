@@ -1,0 +1,78 @@
+<div class="row header">
+    <a class="anchor-pos" id="overview"></a>
+    <h1 class="page-header">Overview</h1>
+</div>
+<div class="row variable">
+    <div class="col-md-6">
+        <p class="h2">数据集</p>
+        <table class="stats">
+            <tbody>
+            <tr>
+                <th>变量个数</th>
+                <td>{{ values['nvar'] }} </td>
+            </tr>
+            <tr>
+                <th>Number of observations</th>
+                <td>{{ values['n'] }} </td>
+            </tr>
+            <tr>
+                <th>缺失值</th>
+                <td>{{ values['n_cells_missing'] }}  ({{ values['p_cells_missing'] | fmt_percent}})</td>
+            </tr>
+             <tr>
+                <th>重复值</th>
+                <td>{{ values['n_duplicates'] }} ({{ values['p_duplicates'] | fmt_percent }})</td>
+            </tr>
+            <tr>
+                <th>消耗内存</th>
+                <td>{{ values['memsize'] | fmt_bytesize }} </td>
+            </tr>
+            <tr>
+                <th>单条记录消耗内存</th>
+                <td>{{ values['recordsize'] | fmt_bytesize }} </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-6">
+        <p class="h2">变量类型</p>
+        <table class="stats">
+            <tbody>
+            <tr>
+                <th>数值型</th>
+                <td>{{ values['NUM'] }}</td>
+            </tr>
+            <tr>
+                <th>字符型</th>
+                <td>{{ values['CAT'] }}</td>
+            </tr>
+            <tr>
+                <th>布鲁尔</th>
+                <td>{{ values['BOOL'] }}</td>
+            </tr>
+            <tr>
+                <th>时间</th>
+                <td>{{ values['DATE'] }}</td>
+            </tr>
+            <tr>
+                <th>URL</th>
+                <td>{{ values['URL'] }}</td>
+            </tr>
+            <tr>
+                <th>文本(Unique)</th>
+                <td>{{ values['UNIQUE'] }}</td>
+            </tr>
+            <tr>
+                <th>需要剔除变量</th>
+                <td>{{ values['REJECTED'] }}</td>
+            </tr>
+            <tr>
+                <th>不支持类型</th>
+                <td>{{ values['UNSUPPORTED'] }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {% include 'messages.html' %}
+</div>
