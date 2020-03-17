@@ -4,54 +4,87 @@ Created on Wed Jul  3 22:10:22 2019
 
 @author: liuyao
 """
-import pandas as pd 
 
-class Query():
-    def __init__(self,symbol='=='):
-        self.symbol = symbol
-        if symbol =='=':
-            raise ValueError('must "=="')
-    def __call__(self,feature,value):
-        if value!=None:
-            self.query = f"{feature}{self.symbol}'{str(value)}'"
+import numpy as np
+from feature_extraction.filter.filterbase import Filterbase
+import re
+
+class Map(Filterbase):
+    
+    def __init__(self,hit_list):
+        self.hit_list = hit_list
+
+    def get_function(self):
+        def map_(df):                
+            c = []
+            for i,e in zip(self.fea_list,self.hit_list):
+                b = (df[i].values==e).reshape(-1,1) if e else np.array([True] * df.shape[0]).reshape(-1,1)
+                c.append(b)
+            boo = np.concatenate(c,axis=1)
+            mask = (boo.sum(axis=1) == len(self.fea_list)).reshape(-1,1)
+            return mask
+        return map_
+
+class NotMap(Filterbase):
+    
+    def __init__(self,hit_list):
+        self.hit_list = hit_list
+
+    def get_function(self):
+        def notmap_(df):                
+            c = []
+            for i,e in zip(self.fea_list,self.hit_list):
+                b = (df[i].values!=e).reshape(-1,1) 
+                c.append(b)
+            boo = np.concatenate(c,axis=1)
+            mask = (boo.sum(axis=1) == len(self.fea_list)).reshape(-1,1)
+            return mask
+        return notmap_
+
+
+class MapIn(Filterbase):
+    
+    def __init__(self,hit_list,regex=True):
+        if regex :
+            self.hit_list = [re.compile(str(h)) for h in hit_list]
         else:
-            self.query = feature+"!='_'"
-        
+            self.hit_list = hit_list
+        self.regex = regex
 
-__FILTER={
-        "equal":Query('=='),
-        '==':Query('=='),
-        '<=':Query('<='),
-        
-        }
+    def get_function(self):
+        def mapin(df):                
+            c = []
+            for i,e in zip(self.fea_list,self.hit_list):
+                if e is None:
+                    np.array([True] * df.shape[0]).reshape(-1,1)
+                elif self.regex: 
+                    b = np.array([e.search(a) is not None for a in df[i].astype(str).values]).reshape(-1,1)
+                else:
+                    b = (df[i].values!=e).reshape(-1,1) 
+                c.append(b)
+            boo = np.concatenate(c,axis=1)
+            mask = (boo.sum(axis=1) == len(self.fea_list)).reshape(-1,1)
+            return mask
+        return mapin
 
+class MapNotIn(Filterbase):
+    
+    def __init__(self,hit_list):
+        self.hit_list = hit_list
 
-def Filter(filters):
-    value_filter_list=[]
-    value_filter_name_list=[]
-    value_filter_cn_name_list=[]
-    if filters!=None:
-        if not isinstance(filters,list):
-            raise TypeError("filters must be a list")
-        for filter_ in filters:
-            filters_features=filter_.get("filters_feature")
-            for fil in filter_.get("filters"):
-                filters_value=fil.get("filters_value",None)
-                if  isinstance(filters_value,list):
-                    filters_value={"==":filters_value}
-                if not isinstance(filters_value,dict):
-                    raise TypeError(' filters_value must be a dict  ')
-                minlist=[]
-                for features_,keys_,values_ in zip(filters_features,filters_value.keys(),filters_value.values()):
-                    f = Query(symbol=keys_)
-                    for v in values_:
-                        f(features_,v)
-                        minlist.append(f.query)
-                                    
-                value_filter_list.append(" and ".join(minlist))
-                value_filter_name_list.append(fil.get("filters_name"))
-                value_filter_cn_name_list.append(fil.get("filters_cn_name"))
-    return value_filter_list,value_filter_name_list,value_filter_cn_name_list
+    def get_function(self):
+        def mapin(df):                
+            c = []
+            for i,e in zip(self.fea_list,self.hit_list):
+                if e is None:
+                    np.array([True] * df.shape[0]).reshape(-1,1)
+                else:
+                    b = np.array([e not in a for a in df[i].values]).reshape(-1,1)
+                c.append(b)
+            boo = np.concatenate(c,axis=1)
+            mask = (boo.sum(axis=1) == len(self.fea_list)).reshape(-1,1)
+            return mask
+        return mapin
 
 
 
