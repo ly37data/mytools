@@ -1,0 +1,22 @@
+{% if values | length > 0 %}
+<div class="row header">
+    <a class="anchor-pos" id="sample"></a>
+    <h1 class="page-header">抽样</h1>
+</div>
+<div class="row variable">
+    {% if 'head' in values %}
+    <h2>前</h2>
+    <div id="sample-head" class="col-md-12">
+        {{ values['head'] }}
+    </div>
+    <br />
+    {% endif %}
+    {% if 'tail' in values %}
+    <h2>后</h2>
+    <div id="sample-tail" class="col-md-12">
+        {{ values['tail'] }}
+    </div>
+
+    {% endif %}
+</div>
+{% endif %}
